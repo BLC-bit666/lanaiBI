@@ -7,23 +7,18 @@ import com.google.gson.Gson;
 import com.lanai.lanaiBI.constant.CommonConstant;
 import com.lanai.lanaiBI.exception.BusinessException;
 import com.lanai.lanaiBI.exception.ThrowUtils;
-import com.lanai.lanaiBI.mapper.PostFavourMapper;
 import com.lanai.lanaiBI.mapper.PostMapper;
-import com.lanai.lanaiBI.mapper.PostThumbMapper;
+import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.service.PostService;
 import com.lanai.lanaiBI.service.UserService;
 import com.lanai.lanaiBI.common.ErrorCode;
 import com.lanai.lanaiBI.model.dto.post.PostEsDTO;
 import com.lanai.lanaiBI.model.dto.post.PostQueryRequest;
 import com.lanai.lanaiBI.model.entity.Post;
-import com.lanai.lanaiBI.model.entity.PostFavour;
-import com.lanai.lanaiBI.model.entity.PostThumb;
-import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.model.vo.PostVO;
 import com.lanai.lanaiBI.model.vo.UserVO;
 import com.lanai.lanaiBI.utils.SqlUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,11 +56,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     @Resource
     private UserService userService;
 
-    @Resource
-    private PostThumbMapper postThumbMapper;
 
-    @Resource
-    private PostFavourMapper postFavourMapper;
 
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
@@ -241,22 +232,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         }
         UserVO userVO = userService.getUserVO(user);
         postVO.setUser(userVO);
-        // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
-            // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postId);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
-            postVO.setHasThumb(postThumb != null);
-            // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postId);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
-            postVO.setHasFavour(postFavour != null);
-        }
         return postVO;
     }
 
@@ -271,26 +246,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         Set<Long> userIdSet = postList.stream().map(Post::getUserId).collect(Collectors.toSet());
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
-        // 2. 已登录，获取用户点赞、收藏状态
-        Map<Long, Boolean> postIdHasThumbMap = new HashMap<>();
-        Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
-            Set<Long> postIdSet = postList.stream().map(Post::getId).collect(Collectors.toSet());
-            loginUser = userService.getLoginUser(request);
-            // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postIdSet);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            List<PostThumb> postPostThumbList = postThumbMapper.selectList(postThumbQueryWrapper);
-            postPostThumbList.forEach(postPostThumb -> postIdHasThumbMap.put(postPostThumb.getPostId(), true));
-            // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postIdSet);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            List<PostFavour> postFavourList = postFavourMapper.selectList(postFavourQueryWrapper);
-            postFavourList.forEach(postFavour -> postIdHasFavourMap.put(postFavour.getPostId(), true));
-        }
+
         // 填充信息
         List<PostVO> postVOList = postList.stream().map(post -> {
             PostVO postVO = PostVO.objToVo(post);
@@ -300,8 +256,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                 user = userIdUserListMap.get(userId).get(0);
             }
             postVO.setUser(userService.getUserVO(user));
-            postVO.setHasThumb(postIdHasThumbMap.getOrDefault(post.getId(), false));
-            postVO.setHasFavour(postIdHasFavourMap.getOrDefault(post.getId(), false));
             return postVO;
         }).collect(Collectors.toList());
         postVOPage.setRecords(postVOList);

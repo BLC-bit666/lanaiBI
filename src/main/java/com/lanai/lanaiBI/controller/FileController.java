@@ -2,6 +2,7 @@ package com.lanai.lanaiBI.controller;
 
 import cn.hutool.core.io.FileUtil;
 import com.lanai.lanaiBI.manager.CosManager;
+import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.service.UserService;
 import com.lanai.lanaiBI.common.BaseResponse;
 import com.lanai.lanaiBI.common.ErrorCode;
@@ -9,7 +10,6 @@ import com.lanai.lanaiBI.common.ResultUtils;
 import com.lanai.lanaiBI.constant.FileConstant;
 import com.lanai.lanaiBI.exception.BusinessException;
 import com.lanai.lanaiBI.model.dto.file.UploadFileRequest;
-import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.model.enums.FileUploadBizEnum;
 
 import java.io.File;

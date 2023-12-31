@@ -3,7 +3,7 @@ package com.lanai.lanaiBI.common;
 /**
  * 返回工具类
  *
- *
+ * @author lanai
  */
 public class ResultUtils {
 

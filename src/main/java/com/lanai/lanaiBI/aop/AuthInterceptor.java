@@ -2,9 +2,9 @@ package com.lanai.lanaiBI.aop;
 
 import com.lanai.lanaiBI.annotation.AuthCheck;
 import com.lanai.lanaiBI.exception.BusinessException;
+import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.service.UserService;
 import com.lanai.lanaiBI.common.ErrorCode;
-import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.model.enums.UserRoleEnum;
 
 import javax.annotation.Resource;

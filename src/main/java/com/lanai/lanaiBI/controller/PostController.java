@@ -2,6 +2,7 @@ package com.lanai.lanaiBI.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
+import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.service.PostService;
 import com.lanai.lanaiBI.service.UserService;
 import com.lanai.lanaiBI.annotation.AuthCheck;
@@ -17,7 +18,6 @@ import com.lanai.lanaiBI.model.dto.post.PostEditRequest;
 import com.lanai.lanaiBI.model.dto.post.PostQueryRequest;
 import com.lanai.lanaiBI.model.dto.post.PostUpdateRequest;
 import com.lanai.lanaiBI.model.entity.Post;
-import com.lanai.lanaiBI.model.entity.User;
 import com.lanai.lanaiBI.model.vo.PostVO;
 
 import java.util.List;
